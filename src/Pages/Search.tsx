@@ -1,11 +1,11 @@
-import Navbar from "../components/home/Navbar";
-import Header from "../components/search/Header";
+import Navbar from "../components/client/home/Navbar";
+import Header from "../components/client/search/Header";
 import { Box, Button, Container, Grid, Typography } from "@mui/material";
-import SearchFilter from "../components/search/Filtre";
-import FeaturedProducts from "../components/home/FeaturedProducts";
+import SearchFilter from "../components/client/search/Filtre";
+import FeaturedProducts from "../components/client/home/FeaturedProducts";
 import React, { useState } from "react";
-import Products from "../components/home/Card";
-import Footer from "../components/home/Footer";
+import Products from "../components/client/home/Card";
+import Footer from "../components/client/home/Footer";
 
 interface Filters {
   searchTerm: string;
