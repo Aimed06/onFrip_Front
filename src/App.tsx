@@ -2,8 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import HomePage from "./Pages/Home"
 import { ThemeProvider, createTheme } from "@mui/material/styles"
 import CssBaseline from "@mui/material/CssBaseline"
-import '@fontsource/poppins';
 import SearchPage from "./Pages/Search";
+import Profile from "./components/client/home/Profile";
 
 
 // Create a theme instance
@@ -17,7 +17,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter" sans-serif',
     h1: {
       fontWeight: 700,
     },
@@ -36,6 +36,7 @@ function App(): JSX.Element {
           <Route path="/" element={<HomePage />} />
           {/* Add more routes as needed */}
           <Route path="/search" element={<SearchPage/>} />
+          <Route path="/account" element={<Profile/>}/>
         </Routes>
       </Router>
     </ThemeProvider>
