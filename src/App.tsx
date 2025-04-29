@@ -3,7 +3,9 @@ import HomePage from "./Pages/Home"
 import { ThemeProvider, createTheme } from "@mui/material/styles"
 import CssBaseline from "@mui/material/CssBaseline"
 import SearchPage from "./Pages/Search";
-import Profile from "./components/client/home/Profile";
+import Profile from "./Pages/Profile";
+import Favoris from "./Pages/FavorisContainer";
+import SignUp from "./components/client/home/Modals/SignUp";
 
 
 // Create a theme instance
@@ -37,6 +39,7 @@ function App(): JSX.Element {
           {/* Add more routes as needed */}
           <Route path="/search" element={<SearchPage/>} />
           <Route path="/account" element={<Profile/>}/>
+          <Route path="/favorites" element={<Favoris/>}/>
         </Routes>
       </Router>
     </ThemeProvider>

@@ -1,8 +1,19 @@
-import { useState, useEffect } from "react";
-import { MdPerson, MdArrowDropDown } from "react-icons/md";
+import { useState, useEffect, useRef } from "react";
+import { MdPerson, MdArrowDropDown, MdAccountCircle, MdNotifications } from "react-icons/md";
 import Badge from "@mui/material/Badge";
-import { Link as RouterLink } from "react-router-dom";
-
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setShowSignUp } from "../../../Redux/ModalSlice/ModalSlice";
+import { RootState } from "../../../Redux/store";
+import { showLoader } from "../../../Redux/LoaderSlice/LoaderSlice";
+import OTP from "./Modals/OTP/Otp";
+import SignUp from "./Modals/SignUp";
+import EndSignUp from "./Modals/EndSignUp";
+import { RiLogoutBoxRLine } from "react-icons/ri";
+import { FaListAlt } from "react-icons/fa";
+import { decrementUnReadNotifs,setLoggedIn } from "../../../Redux/UserSlice/UserSlice";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Authentification } from "../../../services/Authentification/Authentification";
 import {
   AppBar,
   Box,
@@ -28,6 +39,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import RecyclingIcon from "@mui/icons-material/Recycling";
 import type React from "react";
 import { motion } from "framer-motion";
+import { setShowNotifications } from "../../../Redux/NotificationSlice/NotificationSlice";
+import NotificationsContainer from "../Common/Notifications/NotificationsContainer";
 
 // Styled search component
 const Search = styled("div")(({ theme }) => ({
@@ -69,20 +82,69 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const isLogged = true;
+
 
 const Navbar = (): JSX.Element => {
-  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const dispatch= useDispatch();
+  const { signUp, Otp, registration } = useSelector((state: RootState) => state.modal);
+  const user = useSelector((state: RootState) => state.user);
+  const notifications = useSelector((state: RootState) => state.user.notifications.notifications);
+  const isLoggedIn = useSelector((state: RootState) => state.user.loggedIn);
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const showNotifications = useSelector((state: RootState) => state.Notifications.showNotifications);
+  const nbOfNotifNotSeen = useSelector((state: RootState) => state.user.notifications.unReadNotifications);
 
+  const dropDownRef = useRef<HTMLDivElement>(null);
+  const toggleNavbar = (): void => {
+    setIsOpen(!isOpen);
+  };
+  const toggleDropdown = (): void => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  const fetchData = async () => {
+    await Authentification.setSession();
+    setTimeout(() => {
+      dispatch(showLoader(false));
+    }, 1000);
+  };
+
+  useEffect(() => {
+    fetchData();
+    const handleClickDropDown = (event: MouseEvent) => {
+      if (
+        dropDownRef.current &&
+        !dropDownRef.current.contains(event.target as Node) &&
+        event.target instanceof HTMLElement &&
+        !event.target.classList.contains("user-dropdown")
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickDropDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickDropDown);
+    };
+  }, []);
+  
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const [mobileOpen, setMobileOpen] =  useState<boolean>(false);
+  
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
-
+  
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
 
+  const handleSeenNotification = (id: number) => {
+
+    dispatch(decrementUnReadNotifs(1));
+  };
+  
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -105,13 +167,14 @@ const Navbar = (): JSX.Element => {
         setScrolled(false);
       }
     };
-
+    
     window.addEventListener("scroll", handleScroll);
 
-    return () => {
+  return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+  const [openSignUp, setOpenSignUp] = useState(false);
  
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -309,8 +372,34 @@ const Navbar = (): JSX.Element => {
             inputProps={{ "aria-label": "search" }}
           />
         </Search>
-        {isLogged ? (
+        {isLoggedIn ? (
           <>
+          <div className="h-11 w-[1.5px] bg-divider"></div>
+                    <div className="relative">
+                      <div
+                        className="w-16 h-8 relative"
+                        onClick={() => dispatch(setShowNotifications(!showNotifications))}
+                      >
+                        <Badge
+                          sx={{
+                            "& .MuiBadge-badge": {
+                              backgroundColor: "#EA4545",
+                              right: "4px",
+                              top: 0,
+                            },
+                          }}
+                          badgeContent={nbOfNotifNotSeen}
+                        >
+                          <MdNotifications className="w-full h-full text-text-primary hover:cursor-pointer" size={32} />
+                        </Badge>
+                      </div>
+                      {showNotifications && (
+                        <NotificationsContainer
+                          notifications={notifications}
+                          handleSeenNotification={handleSeenNotification}
+                        />
+                      )}
+                    </div>
             <Button
         onClick={handleClick}
         variant="outlined"
@@ -351,7 +440,7 @@ const Navbar = (): JSX.Element => {
             <MdPerson size={20} />
           </Avatar>
         </Badge>
-        Aimed Rabahi
+        {user.firstName +"  "+user.lastName}
         <MdArrowDropDown size={22} />
       </Button>
 
@@ -379,7 +468,12 @@ const Navbar = (): JSX.Element => {
         </MenuItem>
         <Divider />
         <MenuItem
-          onClick={handleClose}
+          component={RouterLink}
+          to="/"
+          onClick={() => {
+            localStorage.removeItem("token");
+            dispatch(setLoggedIn(false));
+          }}
           sx={{
             color: "red",
             fontWeight: "bold",
@@ -393,9 +487,8 @@ const Navbar = (): JSX.Element => {
         ) : (
           <>
             <Button
-              component={RouterLink}
-              to="/login"
-              variant="contained"
+              onClick={() => dispatch(setShowSignUp(true))}
+              variant="outlined"
               sx={{
                 mr: 2,
                 display: { xs: "none", md: "flex" },
@@ -413,8 +506,7 @@ const Navbar = (): JSX.Element => {
               Se connecter
             </Button>
             <Button
-              component={RouterLink}
-              to="/login"
+              onClick={() => dispatch(setShowSignUp(true))}
               variant="contained"
               sx={{
                 mr: 18,
@@ -435,9 +527,16 @@ const Navbar = (): JSX.Element => {
 
         {/* Login button (desktop only) */}
       </Toolbar>
+      <GoogleOAuthProvider clientId="914924490739-9442gj3hf1kgbsuothop40rsf803f3d9.apps.googleusercontent.com">
+        {signUp.show && <SignUp />}
+        {Otp.show && <OTP />}
+        {registration && <EndSignUp />}
+      </GoogleOAuthProvider>
+      
 
     </AppBar>
   );
+  
 };
 
 export default Navbar;
