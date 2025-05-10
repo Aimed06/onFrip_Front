@@ -28,7 +28,7 @@ interface ProductsProps {
   selectedProduct:any;
 }
 
-const ProductsDisplay: React.FC<ProductsProps> = () => {
+const ProductsSearch: React.FC<ProductsProps> = () => {
   const getImageUrl = (image: string) => {
     if (image.startsWith("http")) return image;
     return `http://localhost:5000/uploads/${image}`; // Adaptez l'URL à votre backend
@@ -61,7 +61,7 @@ const ProductsDisplay: React.FC<ProductsProps> = () => {
       }
 
     }
-    const featuredProducts = products.slice(0, 4);  // Only take the first 4 products
+    const featuredProducts = products  // Only take the first 4 products
     return (
     <Grid container spacing={4}>
       {featuredProducts.map((product) => (
@@ -129,7 +129,7 @@ const ProductsDisplay: React.FC<ProductsProps> = () => {
                     <img src={live_help} alt="" />
                     <Typography
                       variant="body2"
-                      color="#3fa351"
+                      color="green"
                       sx={{ fontWeight: "bold", ml: 1 }}
                     >
                       {product.category.id}
@@ -161,5 +161,5 @@ const ProductsDisplay: React.FC<ProductsProps> = () => {
   );
 };
 
-export default ProductsDisplay;
+export default ProductsSearch;
 

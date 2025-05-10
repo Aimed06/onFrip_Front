@@ -4,7 +4,7 @@ import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import SearchFilter from "../components/client/search/Filtre";
 import FeaturedProducts from "../components/client/home/FeaturedProducts";
 import React, { useState } from "react";
-import Products from "../components/client/home/Card";
+import Products from "../components/client/home/SearchCard";
 import Footer from "../components/client/home/Footer";
 
 interface Filters {

@@ -1,5 +1,7 @@
-import UserBar from "../components/client/Profile/userBar";
-import Footer from "../components/client/home/Footer";
+"use client"
+
+import { useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import {
   Container,
   Grid,
@@ -8,102 +10,320 @@ import {
   Typography,
   Tabs,
   Tab,
-} from "@mui/material";
-import { MdShoppingCart, MdStore } from "react-icons/md";
-import { useState } from "react";
-import ProductList from "../components/client/Profile/ProductList";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../Redux/store";
-import Header from "../components/client/Profile/Header";
-import Identite from "../components/client/Modals/VerificationStatus/VerificationStatus";
-import VoirDetail from "../components/client/Modals/VoirDetails/VoirDetail";
-import { Product } from "../services/Product/Products";
-import { setShowDetail } from "../Redux/ModalSlice/ModalSlice";
+  ThemeProvider,
+  createTheme,
+  alpha,
+  useMediaQuery,
+  Avatar,
+  Badge,
+} from "@mui/material"
+import { MdShoppingCart, MdStore, MdHistory, MdShoppingBasket, MdPerson } from "react-icons/md"
+
+import UserBar from "../components/client/Profile/userBar"
+import Footer from "../components/client/home/Footer"
+import ProductList from "../components/client/Profile/ProductList"
+import Header from "../components/client/Profile/Header"
+import Identite from "../components/client/Modals/VerificationStatus/VerificationStatus"
+import VoirDetail from "../components/client/Modals/VoirDetails/VoirDetail"
+import type { Product } from "../services/Product/Products"
+import type { RootState } from "../Redux/store"
+import { setShowDetail } from "../Redux/ModalSlice/ModalSlice"
+
+// Create a custom theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#3fa351", // Indigo as primary color
+      light: "#2cb63c",
+      dark: "#002984",
+      contrastText: "#fff",
+    },
+    secondary: {
+      main: "#f50057", // Pink as secondary color
+      light: "#ff4081",
+      dark: "#c51162",
+      contrastText: "#fff",
+    },
+    background: {
+      default: "#f5f5f5",
+      paper: "#ffffff",
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h4: {
+      fontWeight: 600,
+    },
+    h6: {
+      fontWeight: 500,
+    },
+    subtitle1: {
+      fontWeight: 500,
+    },
+  },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          minHeight: 64,
+          fontWeight: 500,
+          "&.Mui-selected": {
+            color: "#36cb5b",
+          },
+        },
+      },
+    },
+  },
+})
 
 const Profile = () => {
-  const [tab, setTab] = useState(0);
-  const [productSelected, setProductSelected] = useState<Product | null>(null);
+  const [tab, setTab] = useState(0) // 0: Mon Panier, 1: Historique
+  const [subTab, setSubTab] = useState(0) // 0: Achats, 1: Ventes
+  const [productSelected, setProductSelected] = useState<Product | null>(null)
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"))
 
-  const showIdentite = useSelector(
-    (state: RootState) => state.modal.identite
-  );
-  const showDetail = useSelector((state: RootState) => state.modal.detail);
+  const showIdentite = useSelector((state: RootState) => state.modal.identite)
+  const showDetail = useSelector((state: RootState) => state.modal.detail)
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   const handleOpenDetail = (product: Product) => {
-    setProductSelected(product);
-    dispatch(setShowDetail(true)); // ✅ Affiche la modale
-  };
-
-  
+    setProductSelected(product)
+    dispatch(setShowDetail(true))
+  }
 
   return (
-    <>
-      <Header />
-      
+    <ThemeProvider theme={theme}>
+      <Box
+        sx={{
+          bgcolor: "background.default",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Header />
 
-      <Container maxWidth="lg">
-        <Grid container spacing={4}>
-          {/* Sidebar */}
-          <Grid item xs={12} md={3} my={3}>
-            <Paper
-              elevation={3}
-              sx={{
-                borderRadius: 3,
-                p: 2,
-                transition: "transform 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-5px)",
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <UserBar />
-            </Paper>
-          </Grid>
+        <Container maxWidth="lg" sx={{  py: 3  }}>
 
-          {/* Contenu principal */}
-          <Grid item xs={12} md={9} my={3}>
-            <Paper
-              elevation={3}
-              sx={{
-                borderRadius: 3,
-                p: 3,
-                transition: "transform 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-5px)",
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <Tabs
-                value={tab}
-                onChange={(e, newValue) => setTab(newValue)}
-                centered
+
+          <Grid container spacing={4}>
+            {/* Sidebar */}
+            <Grid item xs={12} md={3}>
+              <Paper
+                elevation={0}
+                sx={{
+                  borderRadius: 3,
+                  p: 3,
+                  transition: "all 0.3s ease",
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  "&:hover": {
+                    transform: "translateY(-5px)",
+                    boxShadow: `0 10px 30px ${alpha(theme.palette.primary.main, 0.15)}`,
+                  },
+                  position: "sticky",
+                  top: 20,
+                }}
               >
-                <Tab icon={<MdShoppingCart />} label="Mes Achats" />
-                <Tab icon={<MdStore />} label="Mes Ventes" />
-              </Tabs>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
+                 
+                </Box>
+                <UserBar />
+              </Paper>
+            </Grid>
 
-              <Box sx={{ mt: 2 }}>
-                {tab === 0 && (
-                  <Typography>Affichage des commandes passées...</Typography>
-                )}
-                {tab === 1 && (
-                  <ProductList  selectedProduct={productSelected} onOpenDetail={handleOpenDetail} />
-                )}
-              </Box>
-            </Paper>
+            {/* Main Content */}
+            <Grid item xs={12} md={9}>
+              <Paper
+                elevation={0}
+                sx={{
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  transition: "all 0.3s ease",
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  "&:hover": {
+                    boxShadow: `0 10px 30px ${alpha(theme.palette.primary.main, 0.15)}`,
+                  },
+                }}
+              >
+                {/* Main Tabs */}
+                <Tabs
+                  value={tab}
+                  onChange={(e, newValue) => setTab(newValue)}
+                  variant={isMobile ? "fullWidth" : "standard"}
+                  centered
+                  sx={{
+                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    "& .MuiTabs-indicator": {
+                      height: 3,
+                      borderRadius: "3px 3px 0 0",
+                    },
+                  }}
+                >
+                  <Tab
+                    icon={<MdShoppingBasket size={24} />}
+                    label="Mon Panier"
+                    sx={{
+                      py: 2,
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 1,
+                      "& .MuiTab-iconWrapper": {
+                        marginBottom: "0 !important",
+                        marginRight: 1,
+                      },
+                    }}
+                  />
+                  <Tab
+                    icon={<MdHistory size={24} />}
+                    label="Historique"
+                    sx={{
+                      py: 2,
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 1,
+                      "& .MuiTab-iconWrapper": {
+                        marginBottom: "0 !important",
+                        marginRight: 1,
+                      },
+                    }}
+                  />
+                </Tabs>
+
+                <Box sx={{ p: { xs: 2, md: 4 } }}>
+                  {/* Mon Panier */}
+                  {tab === 0 && (
+                    <Box
+                      sx={{
+                        p: 2,
+                        bgcolor: alpha(theme.palette.primary.main, 0.03),
+                        borderRadius: 2,
+                        border: `1px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          textAlign: "center",
+                          color: "text.secondary",
+                        }}
+                      >
+                        Contenu de mon panier à afficher ici...
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Historique avec sous-tabs */}
+                  {tab === 1 && (
+                    <>
+                      <Tabs
+                        value={subTab}
+                        onChange={(e, newValue) => setSubTab(newValue)}
+                        variant={isMobile ? "fullWidth" : "standard"}
+                        centered
+                        sx={{
+                          mb: 3,
+                          borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                          "& .MuiTabs-indicator": {
+                            height: 2,
+                          },
+                        }}
+                      >
+                        <Tab
+                          icon={<MdShoppingCart size={20} />}
+                          label="Mes Achats"
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 1,
+                            "& .MuiTab-iconWrapper": {
+                              marginBottom: "0 !important",
+                              marginRight: 1,
+                            },
+                          }}
+                        />
+                        <Tab
+                          icon={<MdStore size={20} />}
+                          label="Mes Ventes"
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 1,
+                            "& .MuiTab-iconWrapper": {
+                              marginBottom: "0 !important",
+                              marginRight: 1,
+                            },
+                          }}
+                        />
+                      </Tabs>
+
+                      {subTab === 0 && (
+                        <Box
+                          sx={{
+                            p: 3,
+                            bgcolor: alpha(theme.palette.primary.main, 0.03),
+                            borderRadius: 2,
+                            border: `1px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              textAlign: "center",
+                              color: "text.secondary",
+                            }}
+                          >
+                            Affichage des commandes passées...
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {subTab === 1 && (
+                        <Box
+                          sx={{
+                            bgcolor: "background.paper",
+                            borderRadius: 2,
+                            overflow: "hidden",
+                          }}
+                        >
+                          <ProductList selectedProduct={productSelected} onOpenDetail={handleOpenDetail} />
+                        </Box>
+                      )}
+                    </>
+                  )}
+                </Box>
+              </Paper>
+            </Grid>
           </Grid>
-        </Grid>
-      </Container>
+        </Container>
 
-      {showIdentite && <Identite />}
-      
-      <Footer />
-    </>
-  );
-};
+        {showIdentite && <Identite />}
 
-export default Profile;
+        <Box sx={{ mt: "auto" }}>
+          <Footer />
+        </Box>
+      </Box>
+    </ThemeProvider>
+  )
+}
+
+export default Profile

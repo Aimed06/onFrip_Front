@@ -277,7 +277,7 @@ const Navbar = (): JSX.Element => {
         >
           <RecyclingIcon
             sx={{
-              color: "#3b5740",
+              color: "#4f925b",
               display: "flex",
               mr: 1,
               ml: 15,
@@ -352,7 +352,7 @@ const Navbar = (): JSX.Element => {
               fontWeight: 630,
             }}
           >
-            Nos partenaires
+            partenaires
           </Button>
         </Box>
 
