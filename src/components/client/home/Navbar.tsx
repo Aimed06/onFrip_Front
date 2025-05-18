@@ -14,6 +14,8 @@ import { FaListAlt } from "react-icons/fa";
 import { decrementUnReadNotifs,setLoggedIn } from "../../../Redux/UserSlice/UserSlice";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Authentification } from "../../../services/Authentification/Authentification";
+import { Product } from "../../../services/Product/Products";
+
 import {
   AppBar,
   Box,
@@ -41,6 +43,7 @@ import type React from "react";
 import { motion } from "framer-motion";
 import { setShowNotifications } from "../../../Redux/NotificationSlice/NotificationSlice";
 import NotificationsContainer from "../Common/Notifications/NotificationsContainer";
+import SellProductModal from "../Modals/SellProduct/SellProduct";
 
 // Styled search component
 const Search = styled("div")(({ theme }) => ({
@@ -95,6 +98,21 @@ const Navbar = (): JSX.Element => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const showNotifications = useSelector((state: RootState) => state.Notifications.showNotifications);
   const nbOfNotifNotSeen = useSelector((state: RootState) => state.user.notifications.unReadNotifications);
+  
+    const [openModal, setOpenModal] = useState(false);
+    const [products, setProducts] = useState<Product[]>([]);
+
+   const handleSellProduct = () => {
+    setOpenModal(true);
+  };
+  const handleModalClose = () => {
+    setOpenModal(false);
+  };
+  
+    const handleProductSubmit = (newProduct: Product) => {
+      setProducts((prev) => [newProduct, ...prev]);
+      setOpenModal(false);
+    };
 
   const dropDownRef = useRef<HTMLDivElement>(null);
   const toggleNavbar = (): void => {
@@ -316,8 +334,7 @@ const Navbar = (): JSX.Element => {
             Acheter
           </Button>
           <Button
-            component={RouterLink}
-            to="/sell"
+            onClick={handleSellProduct}
             sx={{
               my: 2,
               color: "inherit",
@@ -533,7 +550,11 @@ const Navbar = (): JSX.Element => {
         {registration && <EndSignUp />}
       </GoogleOAuthProvider>
       
-
+        <SellProductModal
+              open={openModal}
+              onClose={handleModalClose}
+              onSubmit={handleProductSubmit}
+            />
     </AppBar>
   );
   

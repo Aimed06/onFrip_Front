@@ -53,18 +53,6 @@ const ProductList: React.FC<ProductListProps> = ({ onOpenDetail ,selectedProduct
   );
     const showDetail = useSelector((state: RootState) => state.modal.detail);
 
-  const handleSellProduct = () => {
-    setOpenModal(true);
-  };
-
-  const handleModalClose = () => {
-    setOpenModal(false);
-  };
-
-  const handleProductSubmit = (newProduct: Product) => {
-    setProducts((prev) => [newProduct, ...prev]);
-    setOpenModal(false);
-  };
 
   const handleOpenDetail = (product: Product) => {
     dispatch(setProduct({ choosedProduct: product })); // optionnel si tu utilises Redux ailleurs
@@ -91,14 +79,6 @@ const ProductList: React.FC<ProductListProps> = ({ onOpenDetail ,selectedProduct
         </Select>
       </FormControl>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSellProduct}
-        sx={{ mb: 3 }}
-      >
-        Vendre un produit
-      </Button>
 
       {loading ? (
         <CircularProgress />
@@ -118,12 +98,6 @@ const ProductList: React.FC<ProductListProps> = ({ onOpenDetail ,selectedProduct
           )}
         </Grid>
       )}
-
-      <SellProductModal
-        open={openModal}
-        onClose={handleModalClose}
-        onSubmit={handleProductSubmit}
-      />
       
     </Container>
       {showDetail && selectedProduct && (
