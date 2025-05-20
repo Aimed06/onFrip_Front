@@ -2,32 +2,20 @@
 
 import { useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import {
-  Container,
-  Grid,
-  Paper,
-  Box,
-  Typography,
-  Tabs,
-  Tab,
-  ThemeProvider,
-  createTheme,
-  alpha,
-  useMediaQuery,
-  Avatar,
-  Badge,
-} from "@mui/material"
-import { MdShoppingCart, MdStore, MdHistory, MdShoppingBasket, MdPerson } from "react-icons/md"
+import { Container, Grid, Paper, Box, Tabs, Tab, ThemeProvider, createTheme, alpha, useMediaQuery } from "@mui/material"
+import { MdShoppingCart, MdStore, MdHistory, MdShoppingBasket, MdLocalShipping } from "react-icons/md"
 
 import UserBar from "../components/client/Profile/userBar"
 import Footer from "../components/client/home/Footer"
 import ProductList from "../components/client/Profile/ProductList"
 import Header from "../components/client/Profile/Header"
 import Identite from "../components/client/Modals/VerificationStatus/VerificationStatus"
-import VoirDetail from "../components/client/Modals/VoirDetails/VoirDetail"
 import type { Product } from "../services/Product/Products"
 import type { RootState } from "../Redux/store"
 import { setShowDetail } from "../Redux/ModalSlice/ModalSlice"
+import CartList from "../components/client/CartList"
+import OrderList from "../components/client/Profile/OrderList"
+import SellerOrderList from "../components/client/Profile/SellerOrderList"
 
 // Create a custom theme
 const theme = createTheme({
@@ -85,7 +73,7 @@ const theme = createTheme({
 
 const Profile = () => {
   const [tab, setTab] = useState(0) // 0: Mon Panier, 1: Historique
-  const [subTab, setSubTab] = useState(0) // 0: Achats, 1: Ventes
+  const [subTab, setSubTab] = useState(0) // 0: Achats, 1: Ventes, 2: Commandes à traiter
   const [productSelected, setProductSelected] = useState<Product | null>(null)
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
 
@@ -111,9 +99,7 @@ const Profile = () => {
       >
         <Header />
 
-        <Container maxWidth="lg" sx={{  py: 3  }}>
-
-
+        <Container maxWidth="lg" sx={{ py: 3 }}>
           <Grid container spacing={4}>
             {/* Sidebar */}
             <Grid item xs={12} md={3}>
@@ -139,9 +125,7 @@ const Profile = () => {
                     alignItems: "center",
                     mb: 2,
                   }}
-                >
-                 
-                </Box>
+                ></Box>
                 <UserBar />
               </Paper>
             </Grid>
@@ -210,23 +194,8 @@ const Profile = () => {
                 <Box sx={{ p: { xs: 2, md: 4 } }}>
                   {/* Mon Panier */}
                   {tab === 0 && (
-                    <Box
-                      sx={{
-                        p: 2,
-                        bgcolor: alpha(theme.palette.primary.main, 0.03),
-                        borderRadius: 2,
-                        border: `1px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
-                      }}
-                    >
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          textAlign: "center",
-                          color: "text.secondary",
-                        }}
-                      >
-                        Contenu de mon panier à afficher ici...
-                      </Typography>
+                    <Box>
+                      <CartList />
                     </Box>
                   )}
 
@@ -236,8 +205,9 @@ const Profile = () => {
                       <Tabs
                         value={subTab}
                         onChange={(e, newValue) => setSubTab(newValue)}
-                        variant={isMobile ? "fullWidth" : "standard"}
-                        centered
+                        variant={isMobile ? "scrollable" : "standard"}
+                        scrollButtons={isMobile ? "auto" : false}
+                        centered={!isMobile}
                         sx={{
                           mb: 3,
                           borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
@@ -274,26 +244,25 @@ const Profile = () => {
                             },
                           }}
                         />
+                        <Tab
+                          icon={<MdLocalShipping size={20} />}
+                          label="Commandes à traiter"
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 1,
+                            "& .MuiTab-iconWrapper": {
+                              marginBottom: "0 !important",
+                              marginRight: 1,
+                            },
+                          }}
+                        />
                       </Tabs>
 
                       {subTab === 0 && (
-                        <Box
-                          sx={{
-                            p: 3,
-                            bgcolor: alpha(theme.palette.primary.main, 0.03),
-                            borderRadius: 2,
-                            border: `1px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
-                          }}
-                        >
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              textAlign: "center",
-                              color: "text.secondary",
-                            }}
-                          >
-                            Affichage des commandes passées...
-                          </Typography>
+                        <Box>
+                          <OrderList />
                         </Box>
                       )}
 
@@ -306,6 +275,12 @@ const Profile = () => {
                           }}
                         >
                           <ProductList selectedProduct={productSelected} onOpenDetail={handleOpenDetail} />
+                        </Box>
+                      )}
+
+                      {subTab === 2 && (
+                        <Box>
+                          <SellerOrderList />
                         </Box>
                       )}
                     </>

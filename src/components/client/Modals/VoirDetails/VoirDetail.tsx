@@ -10,7 +10,7 @@ import {
   Button,
   Dialog,
 } from "@mui/material";
-import { Product, Products } from "../../../../services/Product/Products";
+import { Product, Products, ProductStatus } from "../../../../services/Product/Products";
 import CloseIcon from "@mui/icons-material/Close";
 import Modal from "../../Common/Modals";
 import Confirmation from "../Confirmation/Confirmation";
@@ -26,7 +26,10 @@ interface ProductDetailModalProps {
   product: Product;
   onClose?: () => void;
   onDelete: (number:number) => Promise<void>;
+
 }
+
+
 
 const VoirDetail = ({ product, onClose, onDelete }: ProductDetailModalProps) => {
   const dispatch = useDispatch();
@@ -110,7 +113,7 @@ const VoirDetail = ({ product, onClose, onDelete }: ProductDetailModalProps) => 
 
           <Typography variant="body1" gutterBottom>
             <strong>Status :</strong>{" "}
-            {product.status === "vendu" ? "Vendu" : "En ligne"}
+            {product.status === ProductStatus.SOLD ? "Vendu" : "En ligne"}
           </Typography>
 
           <Typography variant="body1" gutterBottom>

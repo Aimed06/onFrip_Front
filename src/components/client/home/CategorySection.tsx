@@ -80,7 +80,7 @@ const CategorySection = (): JSX.Element => {
             <Grid item key={category.name} xs={6} md={4} lg={2}>
               <Card
                 component={Link}
-                to={category.href}
+                to="/search"
                 sx={{
                   height: "100%",
                   textDecoration: "none",

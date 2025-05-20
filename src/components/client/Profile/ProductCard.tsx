@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { MdEdit, MdDelete } from "react-icons/md";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { Product } from "../../../services/Product/Products"; // Assurez-vous que le chemin est correct
+import { Product, ProductStatus } from "../../../services/Product/Products"; // Assurez-vous que le chemin est correct
 import VoirDetail from "../Modals/VoirDetails/VoirDetail";
 import money from "../../../assets/money.png"
 import live_help from "../../../assets/live_help.png"
@@ -28,9 +28,14 @@ const ProductCard = ({ product, onOpenDetail }: { product: Product; onOpenDetail
     return `http://localhost:5000/uploads/${image}`; // Adaptez l'URL à votre backend
   };
 
- 
+ interface ProductCardProps {
+  product: Product;
+  onOpenDetail: (product: Product) => void;
+  onProductSold: (productId: number) => void;
+}
 
 
+{console.log("Product status:", product.status)}
   return (
     <>
       <Card
@@ -68,8 +73,8 @@ const ProductCard = ({ product, onOpenDetail }: { product: Product; onOpenDetail
             <FavoriteIcon />
           </IconButton>
           <Chip
-            label={product.status === "vendu" ? "Vendu" : "En ligne"}
-            color={product.status === "vendu" ? "error" : "success"}
+            label={product.status === ProductStatus.SOLD ? "Vendu" : "En ligne"}
+            color={product.status === ProductStatus.SOLD ? "error" : "success"}
             size="small"
             sx={{ position: "absolute", top: 8, left: 8 }}
           />

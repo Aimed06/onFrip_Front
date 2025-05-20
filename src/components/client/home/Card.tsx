@@ -22,6 +22,9 @@ import { useEffect, useState } from "react";
 import { User } from "../../../services/User/User";
 
 
+
+
+
 // Sample data - in a real app, this would come from an API
 interface ProductsProps {
   // Définir dynamiquement le nombre d'éléments par ligne
@@ -29,13 +32,42 @@ interface ProductsProps {
 }
 
 const ProductsDisplay: React.FC<ProductsProps> = () => {
+  const [error, setError] = useState<string | null>(null)
+    const [openSnackbar, setOpenSnackbar] = useState(false)
   const getImageUrl = (image: string) => {
     if (image.startsWith("http")) return image;
     return `http://localhost:5000/uploads/${image}`; // Adaptez l'URL à votre backend
   };
    const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-  
+
+    
+  const handleAddToCart = async (product:Product) => {
+   try {
+         await User.addProductToCart(product.id, 1) // 1 est la quantité par défaut
+         // Pas besoin de dispatch ici car la méthode addProductToCart met déjà à jour le state Redux
+       } catch (error: any) {
+   
+         // Déterminer le message d'erreur approprié
+         let errorMessage = "Erreur lors de l'ajout au panier"
+   
+         // Si l'erreur est une réponse HTTP avec un message
+         if (error.response && error.response.data && error.response.data.message) {
+           errorMessage = error.response.data.message
+         } else if (error.message) {
+           // Si l'erreur a un message simple
+           errorMessage = error.message
+         }
+   
+         // Si l'erreur indique que le produit est déjà possédé
+         if (errorMessage.includes("already own") || errorMessage.includes("déjà possédé")) {
+           errorMessage = "Vous possédez déjà ce produit"
+         }
+   
+         setError(errorMessage)
+         setOpenSnackbar(true)
+       }
+  };
     const dispatch = useDispatch();
     const fetchProducts = async () => {
       try {
@@ -149,6 +181,7 @@ const ProductsDisplay: React.FC<ProductsProps> = () => {
                 variant="contained"
                 fullWidth
                 startIcon={<ShoppingCartIcon sx={{ ml: -0.4 }} />}
+                onClick={() => handleAddToCart(product)}
                 sx={{ height: 50, fontSize: 12, fontWeight: "bold" }}
               >
                 Ajouter au panier

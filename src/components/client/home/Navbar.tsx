@@ -243,21 +243,13 @@ const Navbar = (): JSX.Element => {
         <ListItem disablePadding>
           <ListItemButton
             component={RouterLink}
-            to="/categories"
+            to="/#categories"
             sx={{ textAlign: "center" }}
           >
             <ListItemText primary="Categories" />
           </ListItemButton>
         </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton
-            component={RouterLink}
-            to="/partners"
-            sx={{ textAlign: "center" }}
-          >
-            <ListItemText primary="Our Partners" />
-          </ListItemButton>
-        </ListItem>
+        
         <ListItem disablePadding>
           <ListItemButton
             component={RouterLink}
@@ -347,7 +339,7 @@ const Navbar = (): JSX.Element => {
           </Button>
           <Button
             component={RouterLink}
-            to="/categories"
+            to="/#categories"
             sx={{
               my: 2,
               color: "inherit",
@@ -358,19 +350,7 @@ const Navbar = (): JSX.Element => {
           >
             Categories
           </Button>
-          <Button
-            component={RouterLink}
-            to="/partners"
-            sx={{
-              my: 2,
-              color: "inherit",
-              display: "block",
-              fontSize: "16px",
-              fontWeight: 630,
-            }}
-          >
-            partenaires
-          </Button>
+         
         </Box>
 
         {/* Search */}

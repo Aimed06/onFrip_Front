@@ -1,16 +1,16 @@
+// pages/SearchPage.tsx
+import React, { useState } from "react";
+import { Box, Grid } from "@mui/material";
 import Navbar from "../components/client/home/Navbar";
 import Header from "../components/client/search/Header";
-import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import SearchFilter from "../components/client/search/Filtre";
-import FeaturedProducts from "../components/client/home/FeaturedProducts";
-import React, { useState } from "react";
-import Products from "../components/client/home/SearchCard";
+import ProductsSearch from "../components/client/home/SearchCard";
 import Footer from "../components/client/home/Footer";
 
 interface Filters {
   searchTerm: string;
-  category: string;
-  priceRange: [number, number]; // Tuple avec deux nombres
+  category: string | number;
+  priceRange: [number, number];
 }
 
 const SearchPage: React.FC = () => {
@@ -19,6 +19,10 @@ const SearchPage: React.FC = () => {
     category: "Tous",
     priceRange: [0, 500],
   });
+
+  const handleFilterChange = (newFilters: Filters) => {
+    setFilters(newFilters);
+  };
 
   return (
     <Box
@@ -33,17 +37,17 @@ const SearchPage: React.FC = () => {
       <Box component="main" sx={{ flexGrow: 1 }}>
         <Header />
         <Grid container spacing={1} sx={{ p: 2.5 }}>
-          <Grid item xs={12} md={3} ml={13} mr={-2}  >
-            <SearchFilter onFilterChange={setFilters}  />
+          <Grid item xs={12} md={3} ml={13} >
+            <SearchFilter onFilterChange={handleFilterChange} />
           </Grid>
           <Grid item xs={12} md={8}>
-            
-            <Products itemsPerRow={3}/>
+            <ProductsSearch filters={filters} />
           </Grid>
         </Grid>
       </Box>
-      <Footer/>
+      <Footer />
     </Box>
   );
 };
+
 export default SearchPage;

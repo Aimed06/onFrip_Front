@@ -35,7 +35,6 @@ const SellProductModal = ({ open, onClose, onSubmit }: SellProductModalProps) =>
     setCategories([
       { id: "T-shirt", name: "T-shirt" },
       { id: "Pantalon et jeans", name: "Pantalon et jeans" },
-      { id: "Chaussures", name: "Chaussures" },
       { id: "Accessoires", name: "Accessoires" },
       { id: "lunettes", name: "Lunettes" },
       { id: "Hauts et chemisiers", name: "Hauts et chemisiers" },
@@ -78,7 +77,7 @@ const SellProductModal = ({ open, onClose, onSubmit }: SellProductModalProps) =>
             onClose();
           } catch (err) {
             console.error("Erreur lors de la mise à jour :", err);
-            setError("Erreur lors de la mise en ligne du produit.");
+            setError("Vous n'êtes pas autorisé à effectuer cette action. Veuillez vérifier votre identité");
           } finally {
             setSubmitting(false);
           }

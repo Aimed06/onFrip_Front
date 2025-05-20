@@ -9,6 +9,11 @@ export interface Category{
     name: string;
 }
 
+export enum ProductStatus {
+  SOLD = 1,
+  AVAILABLE = 0,
+}
+
 
 
 export interface Product {
@@ -17,7 +22,7 @@ export interface Product {
   price: number;
   image: string;
   category: Category;
-  status: "En Ligne" | "vendu";
+  status: ProductStatus;
   seller: {
     id: number;
     firstName: string;

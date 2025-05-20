@@ -1,11 +1,8 @@
 import {
     setUser,
-    setUserCanceledOrders,
-    setUserConfirmedOrders,
+    setUserOrders,
     setUserFavoris,
-    setUserRefusedOrders,
-    setUserScheduledOrders,
-    setUserWaitingOrders,
+   
     setVerificationStatus,
   } from "../../Redux/UserSlice/UserSlice";
   import { store } from "../../Redux/store";
@@ -13,6 +10,20 @@ import {
   import { Product } from "../Product/Products";
 import { toast } from "react-toastify";
 import { toastParams } from "../../utils/toastParams";
+// Ajoutez ces imports si nécessaire
+import { setUserCart } from "../../Redux/UserSlice/UserSlice";
+import { is } from "date-fns/locale";
+
+// Ajoutez cette interface
+export interface CartItem {
+  id: number;
+  userId: number;
+  productId: number;
+  product: Product;
+}
+
+// Ajoutez ces méthodes à votre classe User
+
  
   export interface Order {
     id: number;
@@ -44,6 +55,7 @@ import { toastParams } from "../../utils/toastParams";
     product: Product;
   }
   export class User {
+    
     static async getUserFavoris(): Promise<Favoris[]> {
       try {
         const response: AxiosResponse<Favoris[]> = await axios.get(
@@ -106,86 +118,146 @@ import { toastParams } from "../../utils/toastParams";
         throw error;
       }
     }
-    static async getUserScheduledOrders(): Promise<void> {
-      try {
-        const response: AxiosResponse<Order[]> = await axios.get(
-          `${import.meta.env.VITE_API_URL}/orders?type=SCHEDULED`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        store.dispatch(setUserScheduledOrders(response.data));
-      } catch (error) {
-        console.log(error);
-        throw error;
+    
+   
+
+    static async getUserCart(): Promise<CartItem[]> {
+  try {
+    const response: AxiosResponse<CartItem[]> = await axios.get(
+      `${import.meta.env.VITE_API_URL}/Products/basket`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
-    }
-    static async getUserConfirmedOrders(): Promise<void> {
-      try {
-        const response: AxiosResponse<Order[]> = await axios.get(
-          `${import.meta.env.VITE_API_URL}/orders?type=CONFIRMED`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        store.dispatch(setUserConfirmedOrders(response.data));
-      } catch (error) {
-        console.log(error);
-        throw error;
+    );
+    store.dispatch(setUserCart(response.data));
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    toast.error("Erreur lors de la récupération du panier", {
+      ...toastParams,
+      position: "bottom-right",
+    });
+    throw error;
+  }
+}
+
+static async addProductToCart(productId: number,  quantity: number = 1): Promise<void> {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/products/${productId}/basket`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
+    );
+    
+    if (response.status === 200 || response.status === 201) {
+      // Récupérer le panier mis à jour
+      await this.getUserCart();
+      toast.success("Produit ajouté au panier", {
+        ...toastParams,
+        position: "bottom-right",
+      });
     }
-    static async getUserRefusedOrders(): Promise<void> {
-      try {
-        const response: AxiosResponse<Order[]> = await axios.get(
-          `${import.meta.env.VITE_API_URL}/orders?type=REFUSED`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        store.dispatch(setUserRefusedOrders(response.data));
-      } catch (error) {
-        console.log(error);
-        throw error;
+  } catch (error) {
+    console.log(error);
+    toast.error("Erreur lors de l'ajout au panier", {
+      ...toastParams,
+      position: "bottom-right",
+    });
+    throw error;
+  }
+}
+
+static async removeProductFromCart(productId: number): Promise<void> {
+  try {
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_URL}/products/basket/${productId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
+    );
+    
+    if (response.status === 200) {
+      // Récupérer le panier mis à jour
+      await this.getUserCart();
+      toast.success("Produit retiré du panier", {
+        ...toastParams,
+        position: "bottom-right",
+      });
     }
-    static async getUserWaitingOrders(): Promise<void> {
-      try {
-        const response: AxiosResponse<Order[]> = await axios.get(
-          `${import.meta.env.VITE_API_URL}/orders?type=WAITING`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        store.dispatch(setUserWaitingOrders(response.data));
-      } catch (error) {
-        console.log(error);
-        throw error;
+  } catch (error) {
+    console.log(error);
+    toast.error("Erreur lors de la suppression du produit du panier", {
+      ...toastParams,
+      position: "bottom-right",
+    });
+    throw error;
+  }
+}
+
+static async findOne(userId : number): Promise<User> {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/users/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
+    );
+   {
+      store.dispatch(setUser(response.data));
+      return response.data;
     }
-    static async getUserCanceledOrders(): Promise<void> {
-      try {
-        const response: AxiosResponse<Order[]> = await axios.get(
-          `${import.meta.env.VITE_API_URL}/orders?type=CANCELED`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        store.dispatch(setUserCanceledOrders(response.data));
-      } catch (error) {
-        console.log(error);
-        throw error;
+  } catch (error) {
+    console.log(error);
+    toast.error("Erreur lors de la récupération de l'utilisateur", {
+      ...toastParams,
+      position: "bottom-right",
+    });
+    throw error;
+  }
+}
+
+
+
+static async clearCart(): Promise<void> {
+  try {
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_URL}/products/basket`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
+    );
+    
+    if (response.status === 200) {
+      // Mettre à jour le panier dans Redux
+      store.dispatch(setUserCart([]));
+      toast.success("Panier vidé avec succès", {
+        ...toastParams,
+        position: "bottom-right",
+      });
     }
+  } catch (error) {
+    console.log(error);
+    toast.error("Erreur lors de la suppression du panier", {
+      ...toastParams,
+      position: "bottom-right",
+    });
+    throw error;
+  }
+}
+
+    
+   
     public static async verifyUser(image: File): Promise<void> {
       try {
         const formData = new FormData();
@@ -219,7 +291,36 @@ import { toastParams } from "../../utils/toastParams";
         );
       }
     }
+    static async markAsPaid (orderId:number): Promise<void> {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/orders/markAsPaid/${orderId}`,
+        
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        console.log(response.status);
   
+        if (response.status === 200) {
+          toast.success("Votre fichier a été envoyé avec succès", {
+            ...toastParams,
+            position: "bottom-right",
+          });
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error(
+          "Une erreur s'est produite lors de l'envoie de votre fichier",
+          {
+            ...toastParams,
+            position: "bottom-right",
+          }
+        );
+      }
+    }
     static async updateUser(userId: number, data: User): Promise<void> {
       try {
         const response = await axios.put(

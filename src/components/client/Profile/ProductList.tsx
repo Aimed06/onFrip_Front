@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import ProductCard from "./ProductCard"
 import SellProductModal from "../Modals/SellProduct/SellProduct";
-import { Products } from "../../../services/Product/Products";
+import { Products, ProductStatus } from "../../../services/Product/Products";
 import { Product } from "../../../services/Product/Products";
 
 // Redux
@@ -27,7 +27,7 @@ interface ProductListProps {
 }
 
 const ProductList: React.FC<ProductListProps> = ({ onOpenDetail ,selectedProduct}) => {
-  const [filter, setFilter] = useState("all");
+const [filter, setFilter] = useState<"all" | ProductStatus>("all");
   const [openModal, setOpenModal] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,9 +48,10 @@ const ProductList: React.FC<ProductListProps> = ({ onOpenDetail ,selectedProduct
     fetchProducts();
   }, []);
 
-  const filteredProducts = products.filter(
-    (product) => filter === "all" || product.status === filter
-  );
+  const filteredProducts = products.filter((product) =>
+  filter === "all" ? true : product.status === filter
+);
+
     const showDetail = useSelector((state: RootState) => state.modal.detail);
 
 
@@ -71,13 +72,20 @@ const ProductList: React.FC<ProductListProps> = ({ onOpenDetail ,selectedProduct
     <>
     <Container maxWidth="lg" sx={{ mt: 3 }}>
       <FormControl fullWidth sx={{ mb: 3 }}>
-        <InputLabel>Filtrer</InputLabel>
-        <Select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <MenuItem value="all">Tous</MenuItem>
-          <MenuItem value="en ligne">Produits en ligne</MenuItem>
-          <MenuItem value="vendu">Produits vendus</MenuItem>
-        </Select>
-      </FormControl>
+  <InputLabel>Filtrer</InputLabel>
+  <Select
+    value={filter}
+    onChange={(e) => {
+      const value = e.target.value === "all" ? "all" : (e.target.value);
+      setFilter(value as "all" | ProductStatus);
+    }}
+  >
+    <MenuItem value="all">Tous</MenuItem>
+    <MenuItem value={ProductStatus.AVAILABLE}>Produits en ligne</MenuItem>
+    <MenuItem value={ProductStatus.SOLD}>Produits vendus</MenuItem>
+  </Select>
+</FormControl>
+
 
 
       {loading ? (
